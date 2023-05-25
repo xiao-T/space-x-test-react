@@ -9,6 +9,7 @@ import {
   Button,
 } from "@mui/material";
 
+import defaultImage from "./assets/default.png";
 // card item type
 type TListCardType = {
   id: string;
@@ -16,10 +17,16 @@ type TListCardType = {
   name: string;
   time: string;
 };
-const ListCard: FC<TListCardType> = ({ image, name, time }) => {
+const ListCard: FC<TListCardType> = ({ image, name, time }): JSX.Element => {
   return (
     <Card>
-      <CardMedia sx={{ aspectRatio: 16 / 9 }} image={image} title={name} />
+      <CardMedia
+        component={"img"}
+        sx={{ aspectRatio: 16 / 9 }}
+        data-lazy={image}
+        image={defaultImage}
+        alt={name}
+      />
       <CardContent>
         <Typography variant="body2">{time}</Typography>
         <Typography variant="h5" component="div">

@@ -7,6 +7,7 @@ import recordListTheme from "./theme";
 import ListCard from "./ListCard";
 import axios from "axios";
 import dayjs from "dayjs";
+import LazyLoadHOC from "../LazyLoadHOC";
 
 // record item type
 type TRecordItem = {
@@ -25,8 +26,11 @@ const RecordList: FC = () => {
   const [records, setRecords] = useState<TRecordItem[]>([]);
   const getRecords = () => {
     const options = {
-      limit: 12,
+      limit: 24,
       page: 1,
+      sort: {
+        date_local: "asc",
+      },
     };
     axios
       .post(recordsUrl, {
@@ -44,7 +48,6 @@ const RecordList: FC = () => {
   useEffect(() => {
     getRecords();
   }, []);
-  console.log(records);
   return (
     <ThemeProvider theme={recordListTheme}>
       <Box mt={9} mx={2}>
@@ -65,4 +68,4 @@ const RecordList: FC = () => {
   );
 };
 
-export default RecordList;
+export default LazyLoadHOC()(RecordList);
