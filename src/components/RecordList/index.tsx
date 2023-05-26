@@ -13,7 +13,7 @@ import LoadMore from "../LoadMore";
 
 let page: number = 1;
 // record item type
-type TRecordItem = {
+export type TRecordItem = {
   id: string;
   name: string;
   date_local: string;
@@ -22,7 +22,9 @@ type TRecordItem = {
       large: string;
       small: string;
     };
+    youtube_id: string;
   };
+  details: string;
 };
 const recordsUrl = "https://api.spacexdata.com/v5/launches/query";
 const RecordList: FC = () => {
