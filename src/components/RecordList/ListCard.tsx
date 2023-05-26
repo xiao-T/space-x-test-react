@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 
 import defaultImage from "./assets/default.png";
+import { Link } from "react-router-dom";
 // card item type
 type TListCardType = {
   id: string;
@@ -17,7 +18,12 @@ type TListCardType = {
   name: string;
   time: string;
 };
-const ListCard: FC<TListCardType> = ({ image, name, time }): JSX.Element => {
+const ListCard: FC<TListCardType> = ({
+  id,
+  image,
+  name,
+  time,
+}): JSX.Element => {
   return (
     <Card>
       <CardMedia
@@ -34,9 +40,11 @@ const ListCard: FC<TListCardType> = ({ image, name, time }): JSX.Element => {
         </Typography>
       </CardContent>
       <CardActions>
-        <Button size="small" variant="outlined">
-          Learn More
-        </Button>
+        <Link to={`${id}`}>
+          <Button size="small" variant="outlined">
+            Learn More{" "}
+          </Button>
+        </Link>
       </CardActions>
     </Card>
   );
