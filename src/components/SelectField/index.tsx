@@ -22,7 +22,7 @@ const SelectField: FC<TSelectFieldType> = ({
   return (
     <FormControl fullWidth>
       <InputLabel id={id}>{label}</InputLabel>
-      <Select id={id} label="{label}" {...rest}>
+      <Select id={id} label={label} {...rest}>
         {options.map((item) => {
           return (
             <MenuItem key={item.value} value={item.value}>
