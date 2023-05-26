@@ -7,8 +7,11 @@ import recordListTheme from "./theme";
 import ListCard from "./ListCard";
 import axios from "axios";
 import dayjs from "dayjs";
+// local components
 import LazyLoadHOC from "../LazyLoadHOC";
+import LoadMore from "../LoadMore";
 
+let page: number = 1;
 // record item type
 type TRecordItem = {
   id: string;
@@ -24,46 +27,61 @@ type TRecordItem = {
 const recordsUrl = "https://api.spacexdata.com/v5/launches/query";
 const RecordList: FC = () => {
   const [records, setRecords] = useState<TRecordItem[]>([]);
-  const getRecords = () => {
+  // fetch records
+  const getRecords = async (page = 1) => {
     const options = {
-      limit: 24,
-      page: 1,
+      limit: 12,
+      page,
       sort: {
         date_local: "asc",
       },
     };
-    axios
-      .post(recordsUrl, {
+    try {
+      const res = await axios.post(recordsUrl, {
         options,
-      })
-      .then((res) => {
-        const { data } = res;
-        const newRecords = records.concat(data.docs);
-        setRecords(newRecords);
-      })
-      .catch((err) => {
-        console.log(err.message);
       });
+      const { data } = res;
+      if (page === 1) {
+        setRecords([...data.docs]);
+      } else {
+        setRecords((prevRecords) => [...prevRecords, ...data.docs]);
+      }
+      return data.hasNextPage;
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
   };
+  // fetch first page data
   useEffect(() => {
-    getRecords();
+    console.log("init");
+    getRecords(page);
   }, []);
+
   return (
     <ThemeProvider theme={recordListTheme}>
-      <Box mt={9} mx={2}>
-        <Grid container spacing={2}>
-          {records.map((record: TRecordItem, index) => {
-            const { id, name, links, date_local } = record;
-            const image = links.patch.small;
-            const time = dayjs(date_local).format("MMMM D, YYYY");
-            return (
-              <Grid key={id} item>
-                <ListCard id={id} name={name} image={image} time={time} />
-              </Grid>
-            );
-          })}
-        </Grid>
-      </Box>
+      <LoadMore
+        onLoadMore={async () => {
+          page += 1;
+          const result = await getRecords(page);
+          return result;
+        }}
+      >
+        <Box mt={9} mx={2}>
+          <Grid container spacing={2}>
+            {records.map((record: TRecordItem) => {
+              const { id, name, links, date_local } = record;
+              const image = links.patch.small;
+              const time = dayjs(date_local).format("MMMM D, YYYY");
+              return (
+                <Grid key={id} item>
+                  <ListCard id={id} name={name} image={image} time={time} />
+                </Grid>
+              );
+            })}
+          </Grid>
+        </Box>
+      </LoadMore>
     </ThemeProvider>
   );
 };
