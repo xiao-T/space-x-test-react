@@ -41,6 +41,8 @@ const RecordList: FC = () => {
         options,
       });
       const { data } = res;
+      // since React 18, useEffect will be called twice in development with `StrictMode`
+      // refer to: https://react.dev/blog/2022/03/08/react-18-upgrade-guide#updates-to-strict-mode
       if (page === 1) {
         setRecords([...data.docs]);
       } else {
@@ -54,7 +56,6 @@ const RecordList: FC = () => {
   };
   // fetch first page data
   useEffect(() => {
-    console.log("init");
     getRecords(page);
   }, []);
 

@@ -1,6 +1,6 @@
 // override styles
-import { createTheme } from "@mui/material/styles";
-const recordListTheme = createTheme({
+import { Theme, createTheme } from "@mui/material/styles";
+const recordListTheme: Theme = createTheme({
   components: {
     MuiPaper: {
       styleOverrides: {

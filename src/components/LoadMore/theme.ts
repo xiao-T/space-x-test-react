@@ -1,6 +1,6 @@
 // override styles
-import { createTheme } from "@mui/material/styles";
-const loadMoreTheme = createTheme({
+import { Theme, createTheme } from "@mui/material/styles";
+const loadMoreTheme: Theme = createTheme({
   components: {
     MuiFab: {
       styleOverrides: {

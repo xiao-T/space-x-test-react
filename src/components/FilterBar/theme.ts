@@ -1,6 +1,6 @@
 // override styles
-import { createTheme } from "@mui/material/styles";
-const filterTheme = createTheme({
+import { Theme, createTheme } from "@mui/material/styles";
+const filterTheme: Theme = createTheme({
   components: {
     MuiPaper: {
       styleOverrides: {
