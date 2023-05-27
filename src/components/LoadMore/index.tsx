@@ -8,15 +8,30 @@ import loadMoreTheme from "./theme";
 
 let timer: any;
 
+// detect scroll direction
+let lastScrollTop = 0;
+type TScrollDirection = "up" | "down";
+const calcDirection = (): TScrollDirection => {
+  const scrollTop = window.pageYOffset;
+  let result: TScrollDirection = "down";
+  if (scrollTop > lastScrollTop) {
+    result = "down";
+  } else if (scrollTop < lastScrollTop) {
+    result = "up";
+  }
+  lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+  return result;
+};
 // load more props
 type TLoadMoreProps = {
   onLoadMore: () => Promise<boolean>;
+  isLoading?: boolean;
 };
 const LoadMore: FC<PropsWithChildren<TLoadMoreProps>> = ({
   onLoadMore,
+  isLoading = false,
   children,
 }) => {
-  const [hasNextPage, setHasNextPage] = useState<boolean>(true);
   const [showBackTop, setShowBackTop] = useState<boolean>(false);
 
   // back to page top
@@ -33,7 +48,8 @@ const LoadMore: FC<PropsWithChildren<TLoadMoreProps>> = ({
     } else {
       setShowBackTop(true);
     }
-    if (!hasNextPage) {
+    const scrollDirection: TScrollDirection = calcDirection();
+    if (scrollDirection === "up") {
       return;
     }
     if (timer) {
@@ -46,9 +62,7 @@ const LoadMore: FC<PropsWithChildren<TLoadMoreProps>> = ({
         document.body.offsetHeight - 150;
 
       if (endOfPage) {
-        // page += 1;
-        const result = await onLoadMore();
-        setHasNextPage(result);
+        await onLoadMore();
       }
     }, 150);
   };
@@ -63,12 +77,12 @@ const LoadMore: FC<PropsWithChildren<TLoadMoreProps>> = ({
       }
       window.removeEventListener("scroll", loadMore);
     };
-  }, [hasNextPage]);
+  }, [onLoadMore]);
   return (
     <>
       {children}
       <ThemeProvider theme={loadMoreTheme}>
-        {hasNextPage && (
+        {isLoading && (
           <Box py={2}>
             <Grid container justifyContent={"center"} alignItems={"center"}>
               <CircularProgress size={24} />

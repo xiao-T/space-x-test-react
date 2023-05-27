@@ -1,15 +1,21 @@
 // filter panel
 
-import React, { FC } from "react";
+import React, { FC, useContext } from "react";
 import { TextField, Grid, Drawer, Typography, Button } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 // local components
 import CustomDatePicker from "../CustomDatePicker";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import SelectField from "../SelectField";
 import { sortOptions, statusOptions } from "./selectOptions";
 import filterTheme from "./theme";
+import { HomeContext } from "../../pages/home/store";
+import {
+  fetchRecords,
+  TFilterFormType,
+  defaultFilter,
+} from "../../pages/home/apis";
 
 // filter panel type
 type TFilterPanelProps = {
@@ -17,27 +23,40 @@ type TFilterPanelProps = {
   onClose: () => void;
 };
 
-// form type
-type TFilterFormType = {
-  keywords: string;
-  startDate: Dayjs;
-  endDate: Dayjs;
-  launchStatus: string;
-  launchTime: string;
-};
-
 const FilterPanel: FC<TFilterPanelProps> = ({ open, onClose }): JSX.Element => {
-  const { handleSubmit, control } = useForm({
+  const { dispatch } = useContext(HomeContext);
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm({
     defaultValues: {
-      keywords: "",
-      startDate: dayjs(new Date().toLocaleString()),
-      endDate: dayjs(new Date().toLocaleString()),
-      launchStatus: "all",
-      launchTime: "desc",
+      ...defaultFilter,
     },
   });
-  const onSubmit: SubmitHandler<TFilterFormType> = (data: TFilterFormType) => {
-    console.log("submit", data, dayjs(data.startDate).toISOString());
+  const onSubmit: SubmitHandler<TFilterFormType> = async (
+    data: TFilterFormType
+  ) => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+    dispatch({
+      type: "reset",
+    });
+    const filter = {
+      ...data,
+    };
+    const [records, hasNextPage] = await fetchRecords(1, filter);
+    dispatch({
+      type: "update",
+      payload: {
+        records,
+        hasNextPage,
+        page: 1,
+      },
+    });
+    onClose();
   };
   return (
     <ThemeProvider theme={filterTheme}>
@@ -56,13 +75,15 @@ const FilterPanel: FC<TFilterPanelProps> = ({ open, onClose }): JSX.Element => {
               <Controller
                 name="keywords"
                 control={control}
+                rules={{ required: "搜索关键字不能为空!" }}
                 render={({ field }) => (
                   <TextField
                     fullWidth
                     label="关键字"
-                    required
                     variant="outlined"
                     {...field}
+                    error={!!errors.keywords}
+                    helperText={!!errors.keywords && errors.keywords?.message}
                   />
                 )}
               />
@@ -80,8 +101,24 @@ const FilterPanel: FC<TFilterPanelProps> = ({ open, onClose }): JSX.Element => {
               <Controller
                 name="endDate"
                 control={control}
+                rules={{
+                  validate: (value, form) => {
+                    if (
+                      dayjs(value).isBefore(dayjs(form.startDate)) ||
+                      dayjs(value).isSame(dayjs(form.startDate))
+                    ) {
+                      return "结束时间必须大于开始时间";
+                    }
+                    return true;
+                  },
+                }}
                 render={({ field: { ref, ...rest } }) => (
-                  <CustomDatePicker label={"请选择结束时间"} {...rest} />
+                  <CustomDatePicker
+                    label={"请选择结束时间"}
+                    {...rest}
+                    error={!!errors.endDate}
+                    helperText={errors.endDate?.message}
+                  />
                 )}
               />
             </Grid>
@@ -101,7 +138,7 @@ const FilterPanel: FC<TFilterPanelProps> = ({ open, onClose }): JSX.Element => {
             </Grid>
             <Grid item>
               <Controller
-                name="launchTime"
+                name="date_local"
                 control={control}
                 render={({ field: { ref, ...rest } }) => (
                   <SelectField

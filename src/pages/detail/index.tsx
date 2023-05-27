@@ -11,7 +11,7 @@ import detailTheme from "./theme";
 // local components
 import NavBack from "../../components/NavBack";
 import Media from "../../components/Media";
-import { TRecordItem } from "../../components/RecordList";
+import { TRecordItem } from "../home/store";
 
 const url = "https://api.spacexdata.com/v5/launches";
 const Detail: FC = () => {

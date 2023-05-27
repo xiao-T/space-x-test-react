@@ -8,11 +8,27 @@ import { ControllerRenderProps } from "react-hook-form";
 
 type TCustomDatePicker = {
   label?: string;
+  error?: boolean;
+  helperText?: string;
 } & Omit<ControllerRenderProps, "ref">;
-const CustomDatePicker: FC<TCustomDatePicker> = ({ label, ...rest }) => {
+const CustomDatePicker: FC<TCustomDatePicker> = ({
+  label,
+  helperText,
+  error = false,
+  ...rest
+}) => {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <DatePicker label={label} {...rest} />
+      <DatePicker
+        label={label}
+        {...rest}
+        slotProps={{
+          textField: {
+            helperText,
+            error,
+          },
+        }}
+      />
     </LocalizationProvider>
   );
 };
